@@ -793,10 +793,14 @@ export default function ProjectGrid({ isDarkMode }: ProjectGridProps) {
                 {/* Bottom expandable footer button */}
                 <button
                   onClick={() => toggleExpand(project.id)}
-                  className={`w-full border-t py-4 px-6 text-xs font-mono flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                  className={`w-full border-t py-4 px-6 text-xs font-mono flex items-center justify-center gap-1.5 transition-all duration-300 cursor-pointer ${
                     isDarkMode 
-                      ? 'border-neutral-800 hover:bg-neutral-900/80 text-neutral-400 hover:text-white' 
-                      : 'border-zinc-200 hover:bg-zinc-50 text-zinc-550 hover:text-zinc-950'
+                      ? isExpanded
+                        ? 'border-neutral-800 hover:bg-neutral-900/80 text-neutral-400 hover:text-white'
+                        : 'border-sky-500/30 bg-sky-500/5 hover:bg-sky-500/15 text-sky-400 hover:text-sky-300 shadow-[inset_0_1px_15px_rgba(14,165,233,0.1)]'
+                      : isExpanded
+                        ? 'border-zinc-200 hover:bg-zinc-50 text-zinc-550 hover:text-zinc-950'
+                        : 'border-indigo-500/30 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 hover:text-indigo-700 shadow-[inset_0_1px_10px_rgba(99,102,241,0.05)]'
                   }`}
                 >
                   {isExpanded ? (

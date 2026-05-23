@@ -5,25 +5,45 @@ import { PERSONAL_INFO } from '../data';
 interface NavbarProps {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
+  unlockSection?: (section: string) => void;
 }
 
-export default function Navbar({ isDarkMode, toggleDarkMode }: NavbarProps) {
+export default function Navbar({ isDarkMode, toggleDarkMode, unlockSection }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('about');
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
+      
+      const sections = ['about', 'projects', 'skills', 'experience'];
+      let currentSection = 'about';
+      
+      for (const section of sections) {
+        const el = document.getElementById(section);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          // If the section top is above the middle of the viewport, it's currently active
+          if (rect.top <= window.innerHeight / 2.5) {
+            currentSection = section;
+          }
+        }
+      }
+      
+      setActiveSection(currentSection);
     };
+    
     window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Call once to set initial state
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navLinks = [
-    { name: 'About', href: '#about' },
-    { name: 'Projects', href: '#projects' },
-    { name: 'Skills', href: '#skills' },
-    { name: 'Experience', href: '#experience' }
+    { name: 'About', href: '#about', id: 'about' },
+    { name: 'Projects', href: '#projects', id: 'projects' },
+    { name: 'Skills', href: '#skills', id: 'skills' },
+    { name: 'Experience', href: '#experience', id: 'experience' }
   ];
 
   return (
@@ -68,19 +88,34 @@ export default function Navbar({ isDarkMode, toggleDarkMode }: NavbarProps) {
 
           {/* Desktop Nav Items */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className={`text-xs font-mono tracking-wide transition-colors uppercase ${
-                  isDarkMode 
-                    ? 'text-neutral-400 hover:text-white' 
-                    : 'text-zinc-500 hover:text-zinc-950'
-                }`}
-              >
-                {link.name}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.id;
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (unlockSection) unlockSection(link.id);
+                    setTimeout(() => {
+                      const el = document.querySelector(link.href);
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }}
+                  className={`text-xs font-mono tracking-wide transition-all duration-300 uppercase ${
+                    isActive 
+                      ? isDarkMode 
+                        ? 'text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)] font-bold' 
+                        : 'text-indigo-600 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)] font-bold'
+                      : isDarkMode 
+                        ? 'text-neutral-400 hover:text-white' 
+                        : 'text-zinc-500 hover:text-zinc-950'
+                  }`}
+                >
+                  {link.name}
+                </a>
+              );
+            })}
 
             {/* Direct Theme Toggle Button */}
             <button
@@ -98,7 +133,12 @@ export default function Navbar({ isDarkMode, toggleDarkMode }: NavbarProps) {
 
             <a
               id="cta-email-nav"
-              href={`mailto:${PERSONAL_INFO.email}`}
+              href="#contact"
+              onClick={(e) => {
+                e.preventDefault();
+                const el = document.querySelector('#contact');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
               className={`inline-flex items-center gap-1 px-4 py-1.5 rounded-md text-xs font-mono active:scale-95 transition-all text-center tracking-wide ${
                 isDarkMode 
                   ? 'bg-neutral-100 text-neutral-950 hover:bg-neutral-300' 
@@ -153,24 +193,44 @@ export default function Navbar({ isDarkMode, toggleDarkMode }: NavbarProps) {
         }`}
       >
         <div className="px-4 flex flex-col gap-5">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`text-sm font-mono uppercase tracking-wider py-1 block border-b ${
-                isDarkMode 
-                  ? 'text-neutral-300 hover:text-white border-neutral-900' 
-                  : 'text-zinc-650 hover:text-zinc-950 border-zinc-100'
-              }`}
-            >
-              {link.name}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = activeSection === link.id;
+            return (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMobileMenuOpen(false);
+                  if (unlockSection) unlockSection(link.id);
+                  setTimeout(() => {
+                    const el = document.querySelector(link.href);
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
+                className={`text-sm font-mono uppercase tracking-wider py-1 block border-b transition-all duration-300 ${
+                  isActive
+                    ? isDarkMode
+                      ? 'text-sky-400 border-sky-400/50 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)] font-bold'
+                      : 'text-indigo-600 border-indigo-600/50 drop-shadow-[0_0_8px_rgba(79,70,229,0.5)] font-bold'
+                    : isDarkMode 
+                      ? 'text-neutral-300 hover:text-white border-neutral-900' 
+                      : 'text-zinc-650 hover:text-zinc-950 border-zinc-100'
+                }`}
+              >
+                {link.name}
+              </a>
+            );
+          })}
           <a
             id="mobile-drawer-cta"
-            href={`mailto:${PERSONAL_INFO.email}`}
-            onClick={() => setMobileMenuOpen(false)}
+            href="#contact"
+            onClick={(e) => {
+              e.preventDefault();
+              setMobileMenuOpen(false);
+              const el = document.querySelector('#contact');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
             className={`flex items-center justify-center gap-1 py-2.5 rounded-md text-xs font-mono tracking-wide ${
               isDarkMode 
                 ? 'bg-neutral-100 text-neutral-950' 

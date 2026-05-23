@@ -34,7 +34,15 @@ export default function App() {
     } font-sans antialiased`}>
       
       {/* Structural Glassmorphic Navbar with toggler states */}
-      <Navbar isDarkMode={isDarkMode} toggleDarkMode={() => setIsDarkMode(!isDarkMode)} />
+      <Navbar 
+        isDarkMode={isDarkMode} 
+        toggleDarkMode={() => setIsDarkMode(!isDarkMode)} 
+        unlockSection={(section) => {
+          if (section === 'projects') setProjectsUnlocked(true);
+          if (section === 'skills') setSkillsUnlocked(true);
+          if (section === 'experience') setExperienceUnlocked(true);
+        }}
+      />
 
       {/* Hero Section Container */}
       <section 
